@@ -16,6 +16,9 @@ printf "============= found in .h ================\n\n"
 for lib in $LIB_LIST ; do
     if [[ $lib != std* ]] ; then
         printf $lib\\n
+        # getting only last paragraph of dnf provides output
+        # first string of it, and package name that matches regex
+        # pretty hacky tho
         arr+=( $(dnf provides '*'$lib | tail -n 5 | head -n 1 | grep -Po '^.+?(?=-\d)') )
     fi
 done
