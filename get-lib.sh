@@ -25,12 +25,10 @@ for file in $file_list ; do
     for lib in $LIB_LIST ; do
         if [[ $lib != std* ]]
         then
+            # clear screen
             printf "\033c"
             printf "$lib ... "
             # getting only last paragraph of dnf provides output (ignoring error message, if not found)
-            # TODO more smart way to find a lib, last one not always the best one
-            # first string of it, and package name that matches regex
-            # pretty hacky tho
             result=( $(dnf provides '*'$lib 2> /dev/null | grep -Po '^.+?(?=-\d)') )
             # if nothing found (result is empty)
             if [[ -z "$result" ]]
@@ -38,6 +36,7 @@ for file in $file_list ; do
                 printf "${RED}not found${NC}\n"
             else
                 printf "\n"
+                # select from generated options
                 select opt in "${result[@]}"
                 do
                     printf "$opt\n"
@@ -53,5 +52,6 @@ printf "\n"
 printf "=========== related packages found =============\n\n"
 
 #declare -p lib_arr
+
 # print unique values
 printf "%s\n" "${lib_arr[@]}" | sort -u
