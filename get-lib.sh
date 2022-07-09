@@ -5,6 +5,7 @@
 declare -a lib_arr=()
 RED='\033[0;31m'
 NC='\033[0m'
+PS3='Please enter your choice: '
 
 # find all files in all subdirectories with .h extension
 # and put it into list
@@ -24,19 +25,25 @@ for file in $file_list ; do
     for lib in $LIB_LIST ; do
         if [[ $lib != std* ]]
         then
+            printf "\033c"
             printf "$lib ... "
             # getting only last paragraph of dnf provides output (ignoring error message, if not found)
             # TODO more smart way to find a lib, last one not always the best one
             # first string of it, and package name that matches regex
             # pretty hacky tho
-            result=( $(dnf provides '*'$lib 2> /dev/null | tail -n 5 | head -n 1 | grep -Po '^.+?(?=-\d)') )
+            result=( $(dnf provides '*'$lib 2> /dev/null | grep -Po '^.+?(?=-\d)') )
             # if nothing found (result is empty)
             if [[ -z "$result" ]]
             then
                 printf "${RED}not found${NC}\n"
             else
-                printf "$result\n"
-                lib_arr+=$result
+                printf "\n"
+                select opt in "${result[@]}"
+                do
+                    printf "$opt\n"
+                    lib_arr+=($opt)
+                    break
+                done
             fi
         fi
     done
@@ -44,5 +51,7 @@ done
 
 printf "\n"
 printf "=========== related packages found =============\n\n"
+
+#declare -p lib_arr
 # print unique values
 printf "%s\n" "${lib_arr[@]}" | sort -u
