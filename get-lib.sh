@@ -6,6 +6,7 @@ declare -a lib_arr=()
 RED='\033[0;31m'
 NC='\033[0m'
 PS3='Please enter your choice: '
+COUNTER=1
 
 # find all files in all subdirectories with .h extension
 # and put it into list
@@ -13,8 +14,10 @@ PS3='Please enter your choice: '
 printf "Searching header files in directory/subdirectories... \n"
 
 file_list=$(find . -type f -name "*.h")
-
-printf "Files found: $(echo "$file_list" | wc -l)\n"
+n_files=$(echo "$file_list" | wc -l)
+# printf "Files found: $(echo "$file_list" | wc -l)\n"
+printf "Files found: $n_files\n"
+read -n 1 -s -r -p "Press any key to continue"
 
 for file in $file_list ; do
 
@@ -27,6 +30,7 @@ for file in $file_list ; do
         then
             # clear screen
             printf "\033c"
+            printf "Files processed: $COUNTER of $n_files\n"
             printf "$lib ... "
             # getting only last paragraph of dnf provides output (ignoring error message, if not found)
             result=( $(dnf provides '*'$lib 2> /dev/null | grep -Po '^.+?(?=-\d)') )
@@ -45,6 +49,7 @@ for file in $file_list ; do
                 done
             fi
         fi
+        COUNTER=$[$COUNTER+1]
     done
 done
 
