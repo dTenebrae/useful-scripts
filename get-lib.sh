@@ -1,14 +1,18 @@
 #!/bin/bash
 # simple script to get all libs included in c header files in directory and subdir and pipe it to dnf provide command
 
-# create an array
+# declaration part
 declare -a lib_arr=()
+RED='\033[0;31m'
+NC='\033[0m'
 
 # find all files in all subdirectories with .h extension
 # and put it into list
 
 printf "Searching header files in directory/subdirectories... \n"
-file_list=$(fd --extension h)
+
+file_list=$(find . -type f -name "*.h")
+
 printf "Files found: $(echo "$file_list" | wc -l)\n"
 
 for file in $file_list ; do
@@ -29,7 +33,7 @@ for file in $file_list ; do
             # if nothing found (result is empty)
             if [[ -z "$result" ]]
             then
-                printf "not found\n"
+                printf "${RED}not found${NC}\n"
             else
                 printf "$result\n"
                 lib_arr+=$result
