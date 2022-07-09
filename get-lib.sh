@@ -6,23 +6,25 @@ declare -a lib_arr=()
 RED='\033[0;31m'
 NC='\033[0m'
 PS3='Please enter your choice: '
-COUNTER=1
+FILE_COUNTER=1
 
 # find all files in all subdirectories with .h extension
 # and put it into list
 
 printf "Searching header files in directory/subdirectories... \n"
 
-file_list=$(find . -type f -name "*.h")
-n_files=$(echo "$file_list" | wc -l)
-# printf "Files found: $(echo "$file_list" | wc -l)\n"
-printf "Files found: $n_files\n"
+FILE_LIST=$(find . -type f -name "*.h")
+N_FILES=$(echo "$FILE_LIST" | wc -l)
+printf "Files found: $N_FILES\n"
 read -n 1 -s -r -p "Press any key to continue"
 
-for file in $file_list ; do
+for file in $FILE_LIST ; do
 
+    printf "\n"
     # parse included modules to search with dnf
     LIB_LIST=$(cat $file | grep "#include" | awk -F ' ' '{print $2}' | sed 's:^.\(.*\).$:\1:')
+    LIB_LIST_LEN=$(echo "$LIB_LIST" | wc -l)
+    LIB_LIST_COUNTER=1
 
     # iterate over list of lists and put it to dnf provide
     for lib in $LIB_LIST ; do
@@ -30,7 +32,8 @@ for file in $file_list ; do
         then
             # clear screen
             printf "\033c"
-            printf "Files processed: $COUNTER of $n_files\n"
+            printf "Files processed: $FILE_COUNTER of $N_FILES\n"
+            printf "Libs processed: $LIB_LIST_COUNTER of $LIB_LIST_LEN\n"
             printf "$lib ... "
             # getting only last paragraph of dnf provides output (ignoring error message, if not found)
             result=( $(dnf provides '*'$lib 2> /dev/null | grep -Po '^.+?(?=-\d)') )
@@ -49,8 +52,9 @@ for file in $file_list ; do
                 done
             fi
         fi
-        COUNTER=$[$COUNTER+1]
+        LIB_LIST_COUNTER=$[$LIB_LIST_COUNTER+1]
     done
+    FILE_COUNTER=$[$FILE_COUNTER+1]
 done
 
 printf "\n"
